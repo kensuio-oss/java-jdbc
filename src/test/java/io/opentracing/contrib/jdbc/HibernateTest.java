@@ -107,7 +107,7 @@ public class HibernateTest {
   @Test
   public void jpa_with_parent() {
     final MockSpan parent = mockTracer.buildSpan("parent").start();
-    try (Scope ignored = mockTracer.activateSpan(parent)) {
+    try (Scope ignored = mockTracer.scopeManager().activate(parent)) {
       EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("jpa");
 
       EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -130,7 +130,7 @@ public class HibernateTest {
   @Test
   public void jpa_with_parent_and_active_span_only() {
     final MockSpan parent = mockTracer.buildSpan("parent").start();
-    try (Scope ignored = mockTracer.activateSpan(parent)) {
+    try (Scope ignored = mockTracer.scopeManager().activate(parent)) {
       EntityManagerFactory entityManagerFactory = Persistence
           .createEntityManagerFactory("jpa_active_span_only");
 
@@ -195,7 +195,7 @@ public class HibernateTest {
   @Test
   public void hibernate_with_parent() {
     final MockSpan parent = mockTracer.buildSpan("parent").start();
-    try (Scope ignored = mockTracer.activateSpan(parent)) {
+    try (Scope ignored = mockTracer.scopeManager().activate(parent)) {
       SessionFactory sessionFactory = createSessionFactory(false);
       Session session = sessionFactory.openSession();
 
@@ -217,7 +217,7 @@ public class HibernateTest {
   @Test
   public void hibernate_with_parent_and_active_span_only() {
     final MockSpan parent = mockTracer.buildSpan("parent").start();
-    try (Scope ignored = mockTracer.activateSpan(parent)) {
+    try (Scope ignored = mockTracer.scopeManager().activate(parent)) {
       SessionFactory sessionFactory = createSessionFactory(true);
       Session session = sessionFactory.openSession();
 

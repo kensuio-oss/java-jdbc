@@ -23,6 +23,7 @@ public class URLParser {
   private static final Logger log = Logger.getLogger(URLParser.class.getName());
 
   private static final String MYSQL_JDBC_URL_PREFIX = "jdbc:mysql";
+  private static final String CLICKHOUSE_JDBC_URL_PREFIX = "jdbc:clickhouse";
   private static final String ORACLE_JDBC_URL_PREFIX = "jdbc:oracle";
   private static final String H2_JDBC_URL_PREFIX = "jdbc:h2";
   private static final String POSTGRESQL_JDBC_URL_PREFIX = "jdbc:postgresql";
@@ -35,6 +36,7 @@ public class URLParser {
   static {
     // put mysql parser firstly
     parserRegister.put(MYSQL_JDBC_URL_PREFIX, new MysqlURLParser());
+    parserRegister.put(CLICKHOUSE_JDBC_URL_PREFIX, new ClickhouseURLParser());
     parserRegister.put(ORACLE_JDBC_URL_PREFIX, new OracleURLParser());
     parserRegister.put(H2_JDBC_URL_PREFIX, new H2URLParser());
     parserRegister.put(POSTGRESQL_JDBC_URL_PREFIX, new PostgreSQLURLParser());

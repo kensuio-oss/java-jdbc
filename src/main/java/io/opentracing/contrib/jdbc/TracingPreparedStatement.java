@@ -36,8 +36,18 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 public class TracingPreparedStatement extends TracingStatement implements PreparedStatement {
+
+  static final Logger logger = Logger.getLogger(TracingPreparedStatement.class.getName());
 
   private final PreparedStatement preparedStatement;
   private final String query;
@@ -50,10 +60,26 @@ public class TracingPreparedStatement extends TracingStatement implements Prepar
     this.query = query;
   }
 
+
+
+  public static <T> T computeStats(T o, io.opentracing.Tracer tracer) {
+    try {
+      if (o != null && o instanceof ResultSet) {
+        ResultSet result = (ResultSet) o;
+        return (T) io.opentracing.contrib.common.WrapperProxy.wrap(result, new TracingResultSet(result, tracer));
+      }
+    } catch (Exception e) {
+      logger.warning("Can't log stats into Trace, active DEBUG to see stacktrace");
+      logger.log(Level.FINE, "Stats reporting error: " + e.getMessage(), e);
+    }
+    return o;
+  }  
+
   @Override
   public ResultSet executeQuery() throws SQLException {
+    // https://stackoverflow.com/questions/192078/how-do-i-get-the-size-of-a-java-sql-resultset
     return JdbcTracingUtils.call("Query", preparedStatement::executeQuery,
-        query, connectionInfo, withActiveSpanOnly, ignoreStatements, tracer);
+        query, connectionInfo, withActiveSpanOnly, ignoreStatements, tracer, TracingPreparedStatement::computeStats);
   }
 
   @Override

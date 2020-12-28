@@ -16,9 +16,9 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>io.opentracing.contrib</groupId>
+  <groupId>io.kensio.third.contrib</groupId>
   <artifactId>opentracing-jdbc</artifactId>
-  <version>0.2.13-SNAPSHOT</version>
+  <version>0.1.0-SNAPSHOT</version>
 
   <name>${project.groupId}:${project.artifactId}</name>
   <description>OpenTracing Instrumentation for JDBC API</description>
@@ -47,11 +47,16 @@
       <name>Sergei Malafeev</name>
       <email>sergeymalafeev@gmail.com</email>
     </developer>
+    <developer>
+      <id>andyp</id>
+      <name>Andy Petrella</name>
+      <email>andy.petrella@gmail.com</email>
+    </developer>
   </developers>
 
   <issueManagement>
     <system>GitHub</system>
-    <url>https://github.com/opentracing-contrib/java-jdbc/issues</url>
+    <url>https://github.com/kensio-oss/java-jdbc/issues</url>
   </issueManagement>
 
   <properties>

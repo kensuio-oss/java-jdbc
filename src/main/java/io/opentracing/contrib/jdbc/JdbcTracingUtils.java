@@ -77,7 +77,7 @@ class JdbcTracingUtils {
     final Span span = buildSpan(operationName, sql, connectionInfo, withActiveSpanOnly,
     ignoreStatements, tracer);
     long time = slowQueryThresholdMs  > 0 ? System.nanoTime() : 0;
-    try (Scope ignored = tracer.activateSpan(span)) {
+    try (Scope ignored = tracer.scopeManager().activate(span)) {
        runnable.run();
     } catch (Exception e) {
       JdbcTracingUtils.onError(e, span);
@@ -97,6 +97,16 @@ class JdbcTracingUtils {
   boolean withActiveSpanOnly,
   Set<String> ignoreStatements,
   Tracer tracer) throws E {
+    return call(operationName, callable, sql, connectionInfo, withActiveSpanOnly, ignoreStatements, tracer, null);
+  }
+  static <T, E extends Exception> T call(String operationName,
+  CheckedCallable<T, E> callable,
+  String sql,
+  ConnectionInfo connectionInfo,
+  boolean withActiveSpanOnly,
+  Set<String> ignoreStatements,
+  Tracer tracer,
+  java.util.function.BiFunction<T, Tracer, T> inteceptResult) throws E {
     if (!TracingDriver.isTraceEnabled() || (withActiveSpanOnly && tracer.activeSpan() == null)) {
       return callable.call();
     }
@@ -104,8 +114,13 @@ class JdbcTracingUtils {
     final Span span = buildSpan(operationName, sql, connectionInfo, withActiveSpanOnly,
         ignoreStatements, tracer);
     long time = slowQueryThresholdMs  > 0 ? System.nanoTime() : 0;
-    try (Scope ignored = tracer.activateSpan(span)) {
-      return callable.call();
+    try (Scope ignored = tracer.scopeManager().activate(span)) {
+      T result = callable.call();
+      if (inteceptResult != null) {
+        return inteceptResult.apply(result, tracer);
+      } else {
+        return result;
+      }
     } catch (Exception e) {
       JdbcTracingUtils.onError(e, span);
       throw e;

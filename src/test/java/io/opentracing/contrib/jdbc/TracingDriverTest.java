@@ -40,7 +40,7 @@ public class TracingDriverTest {
   @Test
   public void testExplicitTracer() {
     Tracer tracer = new MockTracer();
-    GlobalTracer.registerIfAbsent(tracer);
+    GlobalTracer.register(tracer);
     Tracer tracer2 = new MockTracer();
     TracingDriver tracingDriver = new TracingDriver();
     tracingDriver.setTracer(tracer2);

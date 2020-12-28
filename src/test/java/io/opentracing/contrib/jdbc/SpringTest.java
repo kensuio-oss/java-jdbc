@@ -137,7 +137,7 @@ public class SpringTest {
   @Test
   public void spring_with_parent() throws Exception {
     final MockSpan parent = mockTracer.buildSpan("parent").start();
-    try (Scope ignored = mockTracer.activateSpan(parent)) {
+    try (Scope ignored = mockTracer.scopeManager().activate(parent)) {
       BasicDataSource dataSource = getDataSource(false);
 
       JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
@@ -158,7 +158,7 @@ public class SpringTest {
   @Test
   public void spring_with_parent_and_active_span_only() throws Exception {
     final MockSpan parent = mockTracer.buildSpan("parent").start();
-    try (Scope ignored = mockTracer.activateSpan(parent)) {
+    try (Scope ignored = mockTracer.scopeManager().activate(parent)) {
       BasicDataSource dataSource = getDataSource(true);
 
       JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
