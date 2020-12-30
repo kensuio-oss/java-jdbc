@@ -15,6 +15,7 @@ package io.opentracing.contrib.jdbc;
 
 import io.opentracing.Span;
 import io.opentracing.Tracer;
+import io.opentracing.tag.Tag;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -77,7 +78,7 @@ public class TracingResultSet implements ResultSet {
         public final String name;
         public final String type;
         public final boolean nullable;
-        public final String md;
+        public final Map<String, String> md;
         private Map<String, Double> stats = new HashMap<>();
 
         public ColumnMetadata(String schemaName, String tableName, String name, String type, boolean nullable) {
@@ -86,15 +87,14 @@ public class TracingResultSet implements ResultSet {
             this.name = name;
             this.type = type;
             this.nullable = nullable;
-            // TODO JSON?"
-            this.md = "["+Stream.of(schemaName, tableName, name, type, ""+nullable).reduce((a,b)->a+","+b).get()+"]"; 
+            this.md = Map.of("schemaName", schemaName, "tableName", tableName, "name", name, "type", type, "nullable", ""+nullable); 
         }
 
-        public String toSpanMD() {
+        public Map<String, String> toSpanMD() {
             return this.md;
         }
 
-        public <V> String toSpanStatsIncl(V val) {
+        public <V> Map<String, Double> toSpanStatsIncl(V val) {
             // update stats map with new values
             stats.merge("count", 1d, (oldV, newV)->oldV+1);
             if (val == null) {
@@ -106,12 +106,11 @@ public class TracingResultSet implements ResultSet {
                     stats.put("mean", stats.get("sum")/stats.get("count"));
                 }
             }
-            // TODO JSON?"
-            return "{"+stats.entrySet().stream().map(b->"("+b.getKey()+","+b.getValue()+")").reduce((a,b)->a+","+b).get()+"}";
+            return stats;
         }
         public <V> void trace(Span span, int arg0, V val) {
-            span.setTag("db.column."+arg0+".md", toSpanMD());
-            span.setTag("db.column."+arg0+".stats", toSpanStatsIncl(val));
+            span.setTag(new GenericTag<Map<String, String>>("db.column."+arg0+".md"), toSpanMD());
+            span.setTag(new GenericTag<Map<String, Double>>("db.column."+arg0+".stats"), toSpanStatsIncl(val));
         }
 
     }
