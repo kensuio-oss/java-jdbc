@@ -26,6 +26,10 @@ class TestUtil {
 
   static void checkSameTrace(List<MockSpan> spans) {
     for (int i = 0; i < spans.size() - 1; i++) {
+      if (spans.get(i).operationName().equals("QueryResultStats")) {
+        // stats doesn't comply with following checks for the queries
+        continue;
+      }
       assertEquals(spans.get(i).context().traceId(), spans.get(i + 1).context().traceId());
       assertEquals(spans.get(spans.size() - 1).context().spanId(), spans.get(i).parentId());
     }

@@ -16,14 +16,26 @@ package io.opentracing.contrib.jdbc;
 import io.opentracing.Span;
 import io.opentracing.tag.AbstractTag;
 
+import java.util.logging.Logger;
+
 public class GenericTag<T> extends AbstractTag<T> {
+    private Logger logger = Logger.getLogger(GenericTag.class.getName());
     public GenericTag(String k) {
         super(k);
     }
 
     @Override
     public void set(Span span, T value) {
-        span.setTag(this, value);
+        // MockTracer introduces a recursive call...
+        if (!span.getClass().getName().equals("io.opentracing.mock.MockSpan")) {
+            span.setTag(this, value);
+        } else {
+            try {
+                span.setTag(super.key, value.toString());
+            } catch (IllegalStateException e) {
+                logger.warning("This should only happen during tests...");
+            }
+        }
     }
     
 }

@@ -77,7 +77,7 @@ public class HibernateTest {
     assertNotNull(employee.id);
 
     List<MockSpan> finishedSpans = mockTracer.finishedSpans();
-    assertEquals(14, finishedSpans.size());
+    assertEquals(15, finishedSpans.size());
 
     checkSpans(finishedSpans, "jpa");
     assertNull(mockTracer.activeSpan());
@@ -122,7 +122,7 @@ public class HibernateTest {
     parent.finish();
 
     List<MockSpan> spans = mockTracer.finishedSpans();
-    assertEquals(17, spans.size());
+    assertEquals(19, spans.size());
     checkSameTrace(spans);
     assertNull(mockTracer.activeSpan());
   }
@@ -146,7 +146,7 @@ public class HibernateTest {
     parent.finish();
 
     List<MockSpan> spans = mockTracer.finishedSpans();
-    assertEquals(17, spans.size());
+    assertEquals(19, spans.size());
     checkSameTrace(spans);
     assertNull(mockTracer.activeSpan());
   }
@@ -166,7 +166,7 @@ public class HibernateTest {
     assertNotNull(employee.id);
 
     List<MockSpan> finishedSpans = mockTracer.finishedSpans();
-    assertEquals(14, finishedSpans.size());
+    assertEquals(15, finishedSpans.size());
 
     checkSpans(finishedSpans, "hibernate");
     assertNull(mockTracer.activeSpan());
@@ -209,7 +209,7 @@ public class HibernateTest {
     parent.finish();
 
     List<MockSpan> spans = mockTracer.finishedSpans();
-    assertEquals(17, spans.size());
+    assertEquals(19, spans.size());
     checkSameTrace(spans);
     assertNull(mockTracer.activeSpan());
   }
@@ -231,7 +231,7 @@ public class HibernateTest {
     parent.finish();
 
     List<MockSpan> spans = mockTracer.finishedSpans();
-    assertEquals(17, spans.size());
+    assertEquals(19, spans.size());
     checkSameTrace(spans);
     assertNull(mockTracer.activeSpan());
   }
@@ -252,7 +252,7 @@ public class HibernateTest {
     assertNotNull(employee.id);
 
     List<MockSpan> finishedSpans = mockTracer.finishedSpans();
-    assertEquals(13, finishedSpans.size());
+    assertEquals(14, finishedSpans.size());
 
     checkSpans(finishedSpans, "hibernate");
     assertNull(mockTracer.activeSpan());
@@ -261,6 +261,10 @@ public class HibernateTest {
   private void checkSpans(List<MockSpan> mockSpans, String dbInstance) {
     checkNoEmptyTags(mockSpans);
     for (MockSpan mockSpan : mockSpans) {
+      if (mockSpan.operationName().equals("QueryResultStats")) {
+        // not the same content for the stats
+        continue;
+      }
       assertEquals(Tags.SPAN_KIND_CLIENT, mockSpan.tags().get(Tags.SPAN_KIND.getKey()));
       assertEquals(JdbcTracingUtils.COMPONENT_NAME, mockSpan.tags().get(Tags.COMPONENT.getKey()));
       assertEquals("h2", mockSpan.tags().get(Tags.DB_TYPE.getKey()));
